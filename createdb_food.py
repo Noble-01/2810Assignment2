@@ -55,11 +55,11 @@ sheet_inspec = wb_inspections['inspections']
 
 query = """ insert into violations (point, serial_number, violation_code, violation_description, violation_status) values (?,?,?,?,?)"""
 
-for row in sheet_viol.iter_rows(min_row=2, max_row=5,min_col =1, max_col=5):
-    
-    values = (row[0].value,row[1].value, row[2].value, row[3].value, row[4].value)
+for row in sheet_viol.iter_rows(min_row=2, max_row=10):
+    cursor.execute(query,[row[i].value for i in range(5)])
+    #values = (row[0].value,row[1].value, row[2].value, row[3].value, row[4].value)
     #print(point)  
-    cursor.execute(query,values)
+    #cursor.execute(query,values)
     
 connection.commit()
 connection.close()
