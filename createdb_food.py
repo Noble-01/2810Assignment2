@@ -43,10 +43,6 @@ service_description text
 """
 cursor.execute(sql_command)
 connection.commit()
-#sql = "PRAGMA table_info ('violations');"
-#cursor.execute(sql)
-#result = cursor.fetchall()
-#print(result)
 
 wb_violations = openpyxl.load_workbook('violations.xlsx')
 wb_inspections = openpyxl.load_workbook('inspections.xlsx')
