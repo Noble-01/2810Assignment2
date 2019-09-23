@@ -18,55 +18,48 @@ import sqlite3
 connection=sqlite3.connect('database.db')
 cursor =connection.cursor()
 
-
-sql_command = """
-    SELECT facility_zip
-    FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number 
-    GROUP BY facility_zip 
-    ORDER BY COUNT(v.violation_code) DESC;
-"""
-cursor.execute(sql_command)
-postcodes = cursor.fetchall()
-postCodeHigh = postcodes[0][0]
-postCodeLow= postcodes[-1][0]
-
-sql_command = """
-SELECT COUNT(v.violation_code) 
-FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number AND i.facility_zip = ? 
-GROUP BY strftime("%Y-%m", i.activity_date) 
-ORDER BY strftime("%Y-%m", i.activity_date)
-"""
-cursor.execute(sql_command,[postCodeHigh])
-maxval = cursor.fetchall()
-
-cursor.execute(sql_command,[postCodeLow])
-lowval = cursor.fetchall()
-
 sql_command ="""
-    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/CAST(COUNT(DISTINCT i.facility_zip) AS FLOAT) 
-    FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number 
+    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/CAST(COUNT(DISTINCT v.serial_number ) AS FLOAT) 
+    FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number
+    WHERE i.program_name LIKE 'MCDONALDS'
     GROUP BY strftime("%Y-%m", i.activity_date) 
     ORDER BY strftime("%Y-%m", i.activity_date);
 """
 cursor.execute(sql_command)
-avg = cursor.fetchall()
+macAvg = cursor.fetchall()
+
+sql_command ="""
+    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/CAST(COUNT(DISTINCT v.serial_number ) AS FLOAT) 
+    FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number
+    WHERE i.program_name LIKE 'BURGER KING'
+    GROUP BY strftime("%Y-%m", i.activity_date) 
+    ORDER BY strftime("%Y-%m", i.activity_date);
+"""
+cursor.execute(sql_command)
+burAvg = cursor.fetchall()
+sql_command ="""
+    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/CAST(COUNT(DISTINCT v.serial_number ) AS FLOAT), COUNT(DISTINCT v.serial_number ) 
+    FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number
+    WHERE i.program_name LIKE 'BURGER KING'
+    GROUP BY strftime("%Y-%m", i.activity_date) 
+    ORDER BY strftime("%Y-%m", i.activity_date);
+"""
+cursor.execute(sql_command)
+result = cursor.fetchall()
+for r in result: print(r)
 
 times =[]
-maxVal = []
-avgVal = []
-minVal=[]
+macAvgVal =[]
+burgAvgVal = []
 
-for i in range(len(avg)):
-    times.append(avg[i][0])
-    avgVal.append(avg[i][1])
-    maxVal.append(maxval[i][0])
-    minVal.append(lowval[i][0])
+for i in range(len(burAvg)):
+    times.append(macAvg[i][0])
+    macAvgVal.append(macAvg[i][1])
+    burgAvgVal.append(burAvg[i][1])
+connection.close() 
 
 plt.figure(figsize=(10,5))
 plt.xticks(rotation=45)
-
-plt.plot(times, avgVal, 'r-', times, maxVal, 'g-',times, minVal, 'c-')
-
+plt.plot(times, macAvgVal, 'r-',times, burgAvgVal, 'b-')
 plt.show()
 
-connection.close()
