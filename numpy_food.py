@@ -19,7 +19,7 @@ connection=sqlite3.connect('database.db')
 cursor =connection.cursor()
 
 sql_command ="""
-    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/(select count(n.facility_name)  from inspections n where n.facility_name LIKE ?) 
+    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/(select count(distinct n.facility_name)  from inspections n where n.facility_name LIKE ?) 
     FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number and i.facility_name LIKE ?
     GROUP BY strftime("%Y-%m", i.activity_date) 
     ORDER BY strftime("%Y-%m", i.activity_date);
