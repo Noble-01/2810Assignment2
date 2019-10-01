@@ -19,32 +19,17 @@ connection=sqlite3.connect('database.db')
 cursor =connection.cursor()
 
 sql_command ="""
-    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/CAST(COUNT(DISTINCT v.serial_number ) AS FLOAT) 
-    FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number
-    WHERE i.program_name LIKE 'MCDONALDS'
+    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/(select count(n.facility_name)  from inspections n where n.facility_name LIKE ?) 
+    FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number and i.facility_name LIKE ?
     GROUP BY strftime("%Y-%m", i.activity_date) 
     ORDER BY strftime("%Y-%m", i.activity_date);
 """
-cursor.execute(sql_command)
+cursor.execute(sql_command, ["%MCDONALD'S%","%MCDONALD'S%"])
 macAvg = cursor.fetchall()
 
-sql_command ="""
-    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/CAST(COUNT(DISTINCT v.serial_number ) AS FLOAT) 
-    FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number
-    WHERE i.program_name LIKE 'BURGER KING'
-    GROUP BY strftime("%Y-%m", i.activity_date) 
-    ORDER BY strftime("%Y-%m", i.activity_date);
-"""
-cursor.execute(sql_command)
+cursor.execute(sql_command, ["%BURGER KING%","%BURGER KING%"])
 burAvg = cursor.fetchall()
-sql_command ="""
-    SELECT strftime("%Y-%m", i.activity_date), CAST(COUNT(v.violation_code) AS FLOAT)/CAST(COUNT(DISTINCT v.serial_number ) AS FLOAT), COUNT(DISTINCT v.serial_number ) 
-    FROM inspections i LEFT JOIN violations v ON v.serial_number = i.serial_number
-    WHERE i.program_name LIKE 'BURGER KING'
-    GROUP BY strftime("%Y-%m", i.activity_date) 
-    ORDER BY strftime("%Y-%m", i.activity_date);
-"""
-cursor.execute(sql_command)
+
 result = cursor.fetchall()
 for r in result: print(r)
 

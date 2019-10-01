@@ -13,7 +13,8 @@ point int,
 serial_number text,
 violation_code text,
 violation_description text,
-violation_status text
+violation_status text,
+PRIMARY KEY(serial_number, violation_code)
 );
 """
 cursor.execute(sql_command)
@@ -44,13 +45,13 @@ service_description text
 cursor.execute(sql_command)
 connection.commit()
 
-wb_violations = openpyxl.load_workbook('violations.xlsx')
-wb_inspections = openpyxl.load_workbook('inspections.xlsx')
+wb_violations = openpyxl.load_workbook('violations.xlsx',read_only=True)
+wb_inspections = openpyxl.load_workbook('inspections.xlsx',read_only=True)
 sheet_viol = wb_violations['violations']
 sheet_inspec = wb_inspections['inspections']
 
 
-viol_query = """ insert into violations (point, serial_number, violation_code, violation_description, violation_status) values (?,?,?,?,?)"""
+viol_query = """ insert  or ignore into violations (point, serial_number, violation_code, violation_description, violation_status) values (?,?,?,?,?)"""
 inspec_query=""" insert into inspections values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) """
 for row in sheet_viol.iter_rows(min_row=2):
     cursor.execute(viol_query,[row[i].value for i in range(5)])

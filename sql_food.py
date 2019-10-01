@@ -21,10 +21,11 @@ group by facility_name
 """
 cursor.execute(bus_query)
 cursor.execute("""
-select facility_name,count(violation_code)
+select facility_name,count(violation_code) as totalViolations
 from violations V, inspections I
 where  V.serial_number = I.serial_number
 group by facility_name
+order by totalViolations desc
 """)
 result = cursor.fetchall()
 for r in result:
