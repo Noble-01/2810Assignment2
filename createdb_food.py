@@ -14,7 +14,7 @@ serial_number text,
 violation_code text,
 violation_description text,
 violation_status text,
-PRIMARY KEY(serial_number, violation_code)
+PRIMARY KEY(point, serial_number, violation_code)
 );
 """
 cursor.execute(sql_command)
@@ -43,7 +43,7 @@ service_description text
 );
 """
 cursor.execute(sql_command)
-connection.commit()
+
 
 wb_violations = openpyxl.load_workbook('violations.xlsx',read_only=True)
 wb_inspections = openpyxl.load_workbook('inspections.xlsx',read_only=True)
@@ -57,6 +57,5 @@ for row in sheet_viol.iter_rows(min_row=2):
     cursor.execute(viol_query,[row[i].value for i in range(5)])
 for row in sheet_inspec.iter_rows(min_row=2):
     cursor.execute(inspec_query,[row[i].value for i in range(20)])
-    
 connection.commit()
 connection.close()

@@ -1,4 +1,5 @@
 import sqlite3
+f= open("excel_food.txt","w+")
 connection=sqlite3.connect('database.db')
 cursor =connection.cursor()
 sql_command = "drop table if exists previousViolations ;"
@@ -29,6 +30,8 @@ order by totalViolations desc
 """)
 result = cursor.fetchall()
 for r in result:
-    print(r)
+    #print(r)
+    f.write(str(r)+'\n')
+f.close() 
 connection.commit()
 connection.close()

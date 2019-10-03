@@ -1,6 +1,7 @@
 import sqlite3
 import openpyxl
 from openpyxl.styles import Font
+
 connection=sqlite3.connect('database.db')
 cursor =connection.cursor()
 from openpyxl import Workbook
